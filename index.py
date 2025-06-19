@@ -108,14 +108,21 @@ app.mount("/thumbnails", StaticFiles(directory="downloaded_thumbnails"), name="t
 @app.get("/add-order", response_class=HTMLResponse)
 async def add_order_form():
     local_base_url = "/thumbnails/"
-    options_html = "".join([
+    options_html1 = "".join([
         f'''
-        <div class="option" onclick="selectThumbnail('{name}')">
+        <div class="option" onclick="selectThumbnail1('{name}')">
             <img src="{local_base_url}{"tile_" + str(index) + ".png"}" alt="{name}" />
         </div>
         ''' for index, name in enumerate(thumbnail_list)
     ])
-    
+    options_html2 = "".join([
+        f'''
+        <div class="option" onclick="selectThumbnail2('{name}')">
+            <img src="{local_base_url}{"tile_" + str(index) + ".png"}" alt="{name}" />
+        </div>
+        ''' for index, name in enumerate(thumbnail_list)
+    ])
+
     return HTMLResponse(f"""
     <html>
     <head>
@@ -158,15 +165,25 @@ async def add_order_form():
             }}
         </style>
         <script>
-            function toggleDropdown() {{
-                const options = document.getElementById('dropdown-options');
+            function toggleDropdown1() {{
+                const options = document.getElementById('dropdown-options1');
                 options.style.display = options.style.display === 'block' ? 'none' : 'block';
             }}
-            function selectThumbnail(value) {{
-                document.getElementById('selected_character').value = value;
-                document.getElementById('dropdown-options').style.display = 'none';
-                document.getElementById('dropdown-selected').innerText = value;
+            function selectThumbnail1(value) {{
+                document.getElementById('selected_character1').value = value;
+                document.getElementById('dropdown-options1').style.display = 'none';
+                document.getElementById('dropdown-selected1').innerText = value;
             }}
+                        
+            function toggleDropdown2() {{
+                const options = document.getElementById('dropdown-options2');
+                options.style.display = options.style.display === 'block' ? 'none' : 'block';
+            }}
+            function selectThumbnail2(value) {{
+                document.getElementById('selected_character2').value = value;
+                document.getElementById('dropdown-options2').style.display = 'none';
+                document.getElementById('dropdown-selected2').innerText = value;
+            }} 
         </script>
     </head>
     <body>
@@ -178,14 +195,24 @@ async def add_order_form():
             <label>Enter JSON array of strings (e.g., ["item1", "item2"]):</label><br>
             <textarea name="order_json" rows="5" cols="40" required></textarea><br><br>
 
-            <label>Select Character:</label><br>
-            <div class="dropdown" onclick="toggleDropdown()">
-                <div id="dropdown-selected" class="dropdown-selected">Click to select</div>
-                <div id="dropdown-options" class="dropdown-options">
-                    {options_html}
+            <label>Select Character 1:</label><br>
+            <div class="dropdown" onclick="toggleDropdown1()">
+                <div id="dropdown-selected1" class="dropdown-selected">Click to select</div>
+                <div id="dropdown-options1" class="dropdown-options">
+                    {options_html1}
                 </div>
             </div>
-            <input type="hidden" id="selected_character" name="selected_character"><br><br>
+            <input type="hidden" id="selected_character1" name="selected_character1"><br><br>
+
+            
+            <label>Select Character 2:</label><br>
+            <div class="dropdown" onclick="toggleDropdown2()">
+                <div id="dropdown-selected2" class="dropdown-selected">Click to select</div>
+                <div id="dropdown-options2" class="dropdown-options">
+                    {options_html2}
+                </div>
+            </div>
+            <input type="hidden" id="selected_character2" name="selected_character2"><br><br>
 
             <input type="submit" value="Add Order">
         </form>
