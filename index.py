@@ -221,15 +221,18 @@ async def add_order_form():
     """)
 
 @app.post("/add-order", response_class=HTMLResponse)
-async def add_order(order_name: str = Form(...), order_json: str = Form(...)):
+async def add_order(selected_character1:str=Form(...),selected_character2:str=Form(...), order_name: str = Form(...), order_json: str = Form(...)):
     try:
         order = json.loads(order_json)
+        
         if not isinstance(order, list) or not all(isinstance(item, str) for item in order):
             raise ValueError("Invalid format: must be a list of strings.")
 
         order_queue.append({
             "name": order_name,
-            "order": order
+            "order": order,
+            "character1": selected_character1,
+            "character2": selected_character2
         })
 
         return HTMLResponse(f"""
@@ -259,4 +262,4 @@ async def get_next_order():
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="127.0.1.2", port=8000)
