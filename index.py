@@ -20,13 +20,15 @@ app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 # Global queue to hold orders
 order_queue = deque()
 
+name = "index"
+
 @app.post("/upload")
 async def upload_file(file: UploadFile = File(...)):
     if not file.filename.lower().endswith(".mp4"):
         raise HTTPException(status_code=400, detail="Only MP4 files are allowed.")
 
     contents = await file.read()
-    file_path = os.path.join(UPLOAD_DIR, file.filename)
+    file_path = os.path.join(UPLOAD_DIR,name, file.filename)
 
     with open(file_path, "wb") as f:
         f.write(contents)
@@ -72,8 +74,12 @@ async def add_order_form():
         <body>
             <h2>Add New Order</h2>
             <form action="/add-order" method="post">
-                <label>Enter JSON array of strings (e.g., ["item1", "item2"]):</label><br><br>
-                <textarea name="order_json" rows="5" cols="40"></textarea><br><br>
+                <label>Order Name:</label><br>
+                <input type="text" name="order_name" required><br><br>
+
+                <label>Enter JSON array of strings (e.g., ["item1", "item2"]):</label><br>
+                <textarea name="order_json" rows="5" cols="40" required></textarea><br><br>
+
                 <input type="submit" value="Add Order">
             </form>
         </body>
@@ -82,17 +88,21 @@ async def add_order_form():
 
 
 @app.post("/add-order", response_class=HTMLResponse)
-async def add_order(order_json: str = Form(...)):
+async def add_order(order_name: str = Form(...), order_json: str = Form(...)):
     try:
         order = json.loads(order_json)
         if not isinstance(order, list) or not all(isinstance(item, str) for item in order):
             raise ValueError("Invalid format: must be a list of strings.")
 
-        order_queue.append(order)
+        order_queue.append({
+            "name": order_name,
+            "order": order
+        })
+
         return HTMLResponse(f"""
             <html>
                 <body>
-                    <p style="color:green;">✅ Order added successfully!</p>
+                    <p style="color:green;">✅ Order '{order_name}' added successfully!</p>
                     <a href="/add-order">Add another</a>
                 </body>
             </html>
@@ -106,13 +116,12 @@ async def add_order(order_json: str = Form(...)):
                 </body>
             </html>
         """)
-
-
 @app.get("/next-order")
 async def get_next_order():
     if not order_queue:
         return {"message": "Queue is empty"}
     next_order = order_queue.popleft()  # Remove and return the first item
+    name = next_order["name"]
     return {"next_order": next_order}
 
 
