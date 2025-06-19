@@ -110,14 +110,14 @@ async def add_order_form():
     local_base_url = "/thumbnails/"
     options_html1 = "".join([
         f'''
-        <div class="option" onclick="selectThumbnail1('{name}')">
+        <div class="option" onclick="selectThumbnail1('{"tile_" + str(index) + ".png"}')">
             <img src="{local_base_url}{"tile_" + str(index) + ".png"}" alt="{name}" />
         </div>
         ''' for index, name in enumerate(thumbnail_list)
     ])
     options_html2 = "".join([
         f'''
-        <div class="option" onclick="selectThumbnail2('{name}')">
+        <div class="option" onclick="selectThumbnail2('{"tile_" + str(index) + ".png"}')">
             <img src="{local_base_url}{"tile_" + str(index) + ".png"}" alt="{name}" />
         </div>
         ''' for index, name in enumerate(thumbnail_list)
