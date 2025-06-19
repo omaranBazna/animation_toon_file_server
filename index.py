@@ -8,6 +8,7 @@ from collections import deque
 import json
 import os
 import uvicorn
+from characters import thumbnail_list
 
 app = FastAPI()
 
@@ -99,27 +100,98 @@ async def list_videos(request: Request):
     </html>
     """
     return HTMLResponse(content=html)
+from fastapi.staticfiles import StaticFiles
+
+app.mount("/thumbnails", StaticFiles(directory="downloaded_thumbnails"), name="thumbnails")
+
 
 @app.get("/add-order", response_class=HTMLResponse)
 async def add_order_form():
-    return HTMLResponse("""
+    local_base_url = "/thumbnails/"
+    options_html = "".join([
+        f'''
+        <div class="option" onclick="selectThumbnail('{name}')">
+            <img src="{local_base_url}{"tile_" + str(index) + ".png"}" alt="{name}" />
+        </div>
+        ''' for index, name in enumerate(thumbnail_list)
+    ])
+    
+    return HTMLResponse(f"""
     <html>
-        <head><title>Add Order</title></head>
-        <body>
-            <h2>Add New Order</h2>
-            <form action="/add-order" method="post">
-                <label>Order Name:</label><br>
-                <input type="text" name="order_name" required><br><br>
+    <head>
+        <title>Add Order</title>
+        <style>
+            .dropdown {{
+                position: relative;
+                width: 400px;
+            }}
+            .dropdown-selected {{
+                border: 1px solid #ccc;
+                padding: 10px;
+                cursor: pointer;
+                background-color: #f9f9f9;
+            }}
+            .dropdown-options {{
+                display: none;
+                position: absolute;
+                background-color: white;
+                border: 1px solid #ccc;
+                max-height: 300px;
+                overflow-y: scroll;
+                width: 100%;
+                z-index: 10;
+            }}
+            .option {{
+                display: flex;
+                align-items: center;
+                padding: 5px;
+                cursor: pointer;
+            }}
+            .option:hover {{
+                background-color: #eee;
+            }}
+            .option img {{
+                width: 50px;
+                height: 50px;
+                object-fit: cover;
+                margin-right: 10px;
+            }}
+        </style>
+        <script>
+            function toggleDropdown() {{
+                const options = document.getElementById('dropdown-options');
+                options.style.display = options.style.display === 'block' ? 'none' : 'block';
+            }}
+            function selectThumbnail(value) {{
+                document.getElementById('selected_character').value = value;
+                document.getElementById('dropdown-options').style.display = 'none';
+                document.getElementById('dropdown-selected').innerText = value;
+            }}
+        </script>
+    </head>
+    <body>
+        <h2>Add New Order</h2>
+        <form action="/add-order" method="post">
+            <label>Order Name:</label><br>
+            <input type="text" name="order_name" required><br><br>
 
-                <label>Enter JSON array of strings (e.g., ["item1", "item2"]):</label><br>
-                <textarea name="order_json" rows="5" cols="40" required></textarea><br><br>
+            <label>Enter JSON array of strings (e.g., ["item1", "item2"]):</label><br>
+            <textarea name="order_json" rows="5" cols="40" required></textarea><br><br>
 
-                <input type="submit" value="Add Order">
-            </form>
-        </body>
+            <label>Select Character:</label><br>
+            <div class="dropdown" onclick="toggleDropdown()">
+                <div id="dropdown-selected" class="dropdown-selected">Click to select</div>
+                <div id="dropdown-options" class="dropdown-options">
+                    {options_html}
+                </div>
+            </div>
+            <input type="hidden" id="selected_character" name="selected_character"><br><br>
+
+            <input type="submit" value="Add Order">
+        </form>
+    </body>
     </html>
     """)
-
 
 @app.post("/add-order", response_class=HTMLResponse)
 async def add_order(order_name: str = Form(...), order_json: str = Form(...)):
