@@ -102,7 +102,7 @@ async def list_videos(request: Request):
     return HTMLResponse(content=html)
 from fastapi.staticfiles import StaticFiles
 
-app.mount("/thumbnails", StaticFiles(directory="downloaded_thumbnails"), name="thumbnails")
+app.mount("/thumbnails", StaticFiles(directory="extracted_sprites_contour"), name="thumbnails")
 
 
 @app.get("/add-order", response_class=HTMLResponse)
@@ -110,15 +110,15 @@ async def add_order_form():
     local_base_url = "/thumbnails/"
     options_html1 = "".join([
         f'''
-        <div class="option" onclick="selectThumbnail1('{"tile_" + str(index) + ".png"}')">
-            <img src="{local_base_url}{"tile_" + str(index) + ".png"}" alt="{name}" />
+        <div class="option" onclick="selectThumbnail1('{"sprite_" + str(index).zfill(3) + ".png"}')">
+            <img src="{local_base_url}{"sprite_" + str(index).zfill(3)  + ".png"}" alt="{name}" />
         </div>
         ''' for index, name in enumerate(thumbnail_list)
     ])
     options_html2 = "".join([
         f'''
-        <div class="option" onclick="selectThumbnail2('{"tile_" + str(index) + ".png"}')">
-            <img src="{local_base_url}{"tile_" + str(index) + ".png"}" alt="{name}" />
+        <div class="option" onclick="selectThumbnail2('{"sprite_" + str(index).zfill(3) + ".png"}')">
+            <img src="{local_base_url}{"sprite_" + str(index).zfill(3)  + ".png"}" alt="{name}" />
         </div>
         ''' for index, name in enumerate(thumbnail_list)
     ])
