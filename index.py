@@ -190,15 +190,15 @@ async def add_order_form():
     local_base_url = "/thumbnails/"
     options_html1 = "".join([
         f'''
-        <div class="option" onclick="selectThumbnail1('{"sprite_" + str(index).zfill(3) + ".png"}')">
-            <img src="{local_base_url}{"sprite_" + str(index).zfill(3)  + ".png"}" alt="{name}" />
+        <div class="option" onclick="selectThumbnail1('{"tile_" + index + ".png"}')">
+            <img src="{local_base_url}{"tile_" + str(index)  + ".png"}" alt="{name}" />
         </div>
         ''' for index, name in enumerate(thumbnail_list)
     ])
     options_html2 = "".join([
         f'''
-        <div class="option" onclick="selectThumbnail2('{"sprite_" + str(index).zfill(3) + ".png"}')">
-            <img src="{local_base_url}{"sprite_" + str(index).zfill(3)  + ".png"}" alt="{name}" />
+        <div class="option" onclick="selectThumbnail2('{"tile_" + str(index) + ".png"}')">
+            <img src="{local_base_url}{"tile_" + str(index)  + ".png"}" alt="{name}" />
         </div>
         ''' for index, name in enumerate(thumbnail_list)
     ])
@@ -238,8 +238,8 @@ async def add_order_form():
                 background-color: #eee;
             }}
             .option img {{
-                width: 50px;
-                height: 50px;
+                width: 150px;
+                height: 150px;
                 object-fit: cover;
                 margin-right: 10px;
             }}
